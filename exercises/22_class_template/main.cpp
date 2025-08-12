@@ -7,9 +7,15 @@ struct Tensor4D {
     unsigned int shape[4];
     T *data;
 
+    
+
     Tensor4D(unsigned int const shape_[4], T const *data_) {
         unsigned int size = 1;
         // TODO: 填入正确的 shape 并计算 size
+        for (int i = 0; i < 4; i++) {
+            size *= shape_[i];
+            shape[i] = shape_[i];
+        }
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -27,10 +33,34 @@ struct Tensor4D {
     // 例如，`this` 形状为 `[1, 2, 3, 4]`，`others` 形状为 `[1, 2, 1, 4]`，
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
+        // std::cout << "--------------------------------" << std::endl;
         // TODO: 实现单向广播的加法
+        bool flg[4] = {false, false, false, false};
+        for (int i = 0; i < 4; i++) {
+            if (shape[i] != others.shape[i]) {
+                flg[i] = true;
+            }
+        }
+        for (int i = 0; i < shape[0]; i++) {
+            for (int j = 0; j < shape[1]; j++) {
+                for (int k = 0; k < shape[2]; k++) {
+                    for (int l = 0; l < shape[3]; l++) {
+                        int thisid = i * shape[1] * shape[2] * shape[3] + j * shape[2] * shape[3] + k * shape[3] + l;
+                        int otherid = (flg[0] ? 0 : i) * others.shape[1] * others.shape[2] * others.shape[3] + (flg[1] ? 0 : j) * others.shape[2] * others.shape[3] + (flg[2] ? 0 : k) * others.shape[3] + (flg[3] ? 0 : l);
+                        data[thisid] += others.data[otherid];
+                        // std::cout << thisid << " " << otherid << std::endl;
+                    }
+                }
+            }
+        }
         return *this;
     }
+    
 };
+
+// Template argument deduction guide
+template<class T>
+Tensor4D(unsigned int const shape_[4], T const *data_) -> Tensor4D<T>;
 
 // ---- 不要修改以下代码 ----
 int main(int argc, char **argv) {
