@@ -18,7 +18,7 @@ public:
     // TODO: 实现复制构造器
     // DynFibonacci(DynFibonacci const &) = delete;
     DynFibonacci(DynFibonacci const &other): cache(new size_t[other.cached]), cached(other.cached) {
-        std::memcpy(cache, other.cache, other.cached * sizeof(size_t));
+        std::wmemcpy(cache, other.cache, other.cached * sizeof(size_t));
     }
 
     // TODO: 实现析构器，释放缓存空间
